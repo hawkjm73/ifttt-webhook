@@ -22,8 +22,6 @@ switch($xml->methodName)
 		//@see http://codex.wordpress.org/XML-RPC_WordPress_API/Posts#wp.newPost
 		$obj = new stdClass;
 		//get the parameters from xml
-		$obj->user = (string)$xml->params->param[1]->value->string;
-		$obj->pass = (string)$xml->params->param[2]->value->string;
 
 		//@see content in the wordpress docs
 		$content = $xml->params->param[3]->value->struct->member;
@@ -36,31 +34,36 @@ switch($xml->methodName)
 					$url = $data->xpath('value/array/data/value/string');
 					$url = (string)$url[0];
 					break;
-
-				//the passed categories are parsed into an array
-				case 'categories':
-					$categories=array();
-					foreach($data->xpath('value/array/data/value/string') as $cat)
-						array_push($categories,(string)$cat);
-					$obj->categories = $categories;
+                                //the title provides the user key for AutoRemote
+                                case 'title':
+					$key = (string)$data->value->string;;
+					break;
+                                //the description, or the body of the post, provides the message to send via AutoRemote
+                                case 'description':
+					$message = (string)$data->value->string;;
 					break;
 
-				//this is used for title/description
+				//this is not used
 				default:
-					$obj->{$data->name} = (string)$data->value->string;
+					//$obj->{$data->name} = (string)$data->value->string;
 			}
 		}
 
 		//Make the webrequest
 		//Only if we have a valid url
 		if(valid_url($url,true))
-		{
+                {
+                        //attach the key and the message to the url
+		        $url = $url . '?key=' . $key;
+                        $url = $url . '&message=' . $message;
+                
 			// Load Requests Library
 			include('requests/Requests.php');
 			Requests::register_autoloader();
 
 			$headers = array('Content-Type' => 'application/json');
 			$response = Requests::post($url, $headers, json_encode($obj));
+                        //$response = Requests::post($url, $headers);
 
 			if($response->success)
 				success('<string>'.$response->status_code.'</string>');
@@ -72,7 +75,7 @@ switch($xml->methodName)
 			//since the url was invalid, we return 400 (Bad Request)
 			failure(400);
 		}
-		
+
 }
 
 /** Copied from wordpress */
