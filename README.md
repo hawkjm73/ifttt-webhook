@@ -28,7 +28,7 @@ There has been a lot of [call](http://blog.jazzychad.net/2012/08/05/ifttt-needs-
 The body field of the WordPress post will be passed on as the message to be sent via AutoRemote
 
 #Licence
-Licenced under GPL. Some portions of the code are from wordpress itself. You should probably host this on your own server, instead of using `ifttt-captnemo.aws.af.cm`. I recommend using [appfog](https://appfog.com/) for excellent php hosting.
+Licenced under GPL. Some portions of the code are from wordpress itself. You should probably host this on your own server.
 
 #Custom Use
 Just clone the git repo to some place, and use that as the wordpress installation location in ifttt.com channel settings.
